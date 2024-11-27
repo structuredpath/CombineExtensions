@@ -605,80 +605,80 @@ class CurrentValuePublisherTests: XCTestCase {
         XCTAssertEqual(values, ["10", "11", "20", "12", "30", "30", "12"])
     }
     
-//    // ============================================================================ //
-//    // MARK: - Remove Duplicates Operator
-//    // ============================================================================ //
-//    
-//    func testRemoveDuplicates_constant() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [Int]()
-//        
-//        CurrentValuePublisher(value: 1)
-//            .removeDuplicates()
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [1])
-//    }
-//    
-//    func testRemoveDuplicates_subject() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [Int]()
-//        
-//        let subject = CurrentValueSubject<Int, Never>(1)
-//        
-//        CurrentValuePublisher(subject)
-//            .removeDuplicates()
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [1])
-//        
-//        subject.send(1)
-//        XCTAssertEqual(values, [1])
-//        
-//        subject.send(1)
-//        XCTAssertEqual(values, [1])
-//        
-//        subject.send(2)
-//        XCTAssertEqual(values, [1, 2])
-//        
-//        subject.send(2)
-//        XCTAssertEqual(values, [1, 2])
-//        
-//        subject.send(3)
-//        XCTAssertEqual(values, [1, 2, 3])
-//    }
-//    
-//    func testRemoveDuplicate_subject_customPredicate() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [Int]()
-//        
-//        let subject = CurrentValueSubject<Int, Never>(1)
-//        
-//        CurrentValuePublisher(subject)
-//            .removeDuplicates(by: { old, new in new < old })
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [1])
-//        
-//        subject.send(4)
-//        XCTAssertEqual(values, [1, 4])
-//        
-//        subject.send(3)
-//        XCTAssertEqual(values, [1, 4])
-//        
-//        subject.send(6)
-//        XCTAssertEqual(values, [1, 4, 6])
-//        
-//        subject.send(2)
-//        XCTAssertEqual(values, [1, 4, 6])
-//        
-//        subject.send(7)
-//        XCTAssertEqual(values, [1, 4, 6, 7])
-//    }
-//    
+    // ============================================================================ //
+    // MARK: - Remove Duplicates Operator
+    // ============================================================================ //
+    
+    func testRemoveDuplicates_constant() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [Int]()
+        
+        CurrentValuePublisher(value: 1)
+            .removeDuplicates()
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [1])
+    }
+    
+    func testRemoveDuplicates_subject() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [Int]()
+        
+        let subject = CurrentValueSubject<Int, Never>(1)
+        
+        CurrentValuePublisher(subject)
+            .removeDuplicates()
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [1])
+        
+        subject.send(1)
+        XCTAssertEqual(values, [1])
+        
+        subject.send(1)
+        XCTAssertEqual(values, [1])
+        
+        subject.send(2)
+        XCTAssertEqual(values, [1, 2])
+        
+        subject.send(2)
+        XCTAssertEqual(values, [1, 2])
+        
+        subject.send(3)
+        XCTAssertEqual(values, [1, 2, 3])
+    }
+    
+    func testRemoveDuplicate_subject_customPredicate() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [Int]()
+        
+        let subject = CurrentValueSubject<Int, Never>(1)
+        
+        CurrentValuePublisher(subject)
+            .removeDuplicates(by: { old, new in new < old })
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [1])
+        
+        subject.send(4)
+        XCTAssertEqual(values, [1, 4])
+        
+        subject.send(3)
+        XCTAssertEqual(values, [1, 4])
+        
+        subject.send(6)
+        XCTAssertEqual(values, [1, 4, 6])
+        
+        subject.send(2)
+        XCTAssertEqual(values, [1, 4, 6])
+        
+        subject.send(7)
+        XCTAssertEqual(values, [1, 4, 6, 7])
+    }
+    
 //    // ============================================================================ //
 //    // MARK: - CombineLatest Operator
 //    // ============================================================================ //
