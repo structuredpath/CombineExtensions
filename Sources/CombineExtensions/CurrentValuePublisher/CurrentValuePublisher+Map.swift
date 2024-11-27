@@ -24,3 +24,25 @@ extension CurrentValuePublisher {
     }
     
 }
+    
+#if compiler(<6.0)
+
+extension CurrentValuePublisher {
+    
+    /// Produces a new `CurrentValuePublisher` by extracting a value from the current and all
+    /// subsequent values using the given key path.
+    ///
+    /// This overload is provided for Swift versions prior to 6.0, where key path inference
+    /// in `map` is not fully supported.
+    ///
+    /// - Parameter keyPath: A key path to extract a property of a value.
+    /// - Returns: A `CurrentValuePublisher` that emits the values extracted by the given key path.
+    public func map<T>(
+        _ keyPath: KeyPath<Output, T>
+    ) -> CurrentValuePublisher<T, Failure> {
+        self.map { $0[keyPath: keyPath] }
+    }
+    
+}
+
+#endif
