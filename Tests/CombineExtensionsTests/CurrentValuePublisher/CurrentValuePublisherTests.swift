@@ -476,137 +476,137 @@ class CurrentValuePublisherTests: XCTestCase {
         XCTAssertEqual(values, ["1", "2"])
     }
     
-//    // ============================================================================ //
-//    // MARK: - FlatMap Operator
-//    // ============================================================================ //
-//    
-//    func testFlatMap_constant_constant() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [String]()
-//        
-//        CurrentValuePublisher(value: 1)
-//            .flatMapLatest { CurrentValuePublisher(value: "\($0)") }
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, ["1"])
-//    }
-//    
-//    func testFlatMap_constant_subject() {
-//        let subject = CurrentValueSubject<Int, Never>(1)
-//        let publisher = subject.toCurrentValuePublisher()
-//        
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [String]()
-//        
-//        CurrentValuePublisher(value: ())
-//            .flatMapLatest { _ in publisher.map { "\($0)" } }
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, ["1"])
-//        
-//        subject.value = 2
-//        XCTAssertEqual(values, ["1", "2"])
-//    }
-//    
-//    func testFlatMap_subject_constants() {
-//        let subject = CurrentValueSubject<Int, Never>(1)
-//        let publisher = subject.toCurrentValuePublisher()
-//        
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [String]()
-//        
-//        publisher
-//            .flatMapLatest { CurrentValuePublisher(value: "\($0)") }
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, ["1"])
-//        
-//        subject.value = 2
-//        XCTAssertEqual(values, ["1", "2"])
-//        
-//        subject.value = 2
-//        XCTAssertEqual(values, ["1", "2", "2"])
-//    }
-//    
-//    func testFlatMap_subject_subjects() {
-//        let innerSubject1 = CurrentValueSubject<Int, Never>(10)
-//        let innerPublisher1 = innerSubject1.toCurrentValuePublisher()
-//        
-//        let innerSubject2 = CurrentValueSubject<Int, Never>(20)
-//        let innerPublisher2 = innerSubject2.toCurrentValuePublisher()
-//        
-//        let outerSubject = CurrentValueSubject<CurrentValuePublisher<Int, Never>, Never>(innerPublisher1)
-//        let outerPublisher = outerSubject.toCurrentValuePublisher()
-//        
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [String]()
-//        
-//        outerPublisher
-//            .flatMapLatest { innerPublisher in
-//                innerPublisher.map { "\($0)" }
-//            }
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, ["10"])
-//        
-//        innerSubject1.value = 11
-//        XCTAssertEqual(values, ["10", "11"])
-//        
-//        outerSubject.value = innerPublisher2
-//        innerSubject2.value = 21
-//        innerSubject2.value = 22
-//        XCTAssertEqual(values, ["10", "11", "20", "21", "22"])
-//        
-//        innerSubject1.value = 12
-//        outerSubject.value = innerPublisher1
-//        innerSubject1.value = 13
-//        XCTAssertEqual(values, ["10", "11", "20", "21", "22", "12", "13"])
-//    }
-//    
-//    func testFlatMap_subject_subjectsAndConstants() {
-//        let innerSubject1 = CurrentValueSubject<Int, Never>(10)
-//        let innerPublisher1 = innerSubject1.toCurrentValuePublisher()
-//        
-//        let innerPublisher2 = CurrentValuePublisher<Int, Never>(value: 20)
-//        let innerPublisher3 = CurrentValuePublisher<Int, Never>(value: 30)
-//        
-//        let outerSubject = CurrentValueSubject<CurrentValuePublisher<Int, Never>, Never>(innerPublisher1)
-//        let outerPublisher = outerSubject.toCurrentValuePublisher()
-//        
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [String]()
-//        
-//        outerPublisher
-//            .flatMapLatest { innerPublisher in
-//                innerPublisher.map { "\($0)" }
-//            }
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, ["10"])
-//        
-//        innerSubject1.value = 11
-//        XCTAssertEqual(values, ["10", "11"])
-//        
-//        outerSubject.value = innerPublisher2
-//        XCTAssertEqual(values, ["10", "11", "20"])
-//        
-//        innerSubject1.value = 12
-//        outerSubject.value = innerPublisher1
-//        XCTAssertEqual(values, ["10", "11", "20", "12"])
-//        
-//        outerSubject.value = innerPublisher3
-//        outerSubject.value = innerPublisher3
-//        XCTAssertEqual(values, ["10", "11", "20", "12", "30", "30"])
-//        
-//        outerSubject.value = innerPublisher1
-//        XCTAssertEqual(values, ["10", "11", "20", "12", "30", "30", "12"])
-//    }
-//    
+    // ============================================================================ //
+    // MARK: - FlatMapLatest Operator
+    // ============================================================================ //
+    
+    func testFlatMapLatest_constant_constant() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [String]()
+        
+        CurrentValuePublisher(value: 1)
+            .flatMapLatest { CurrentValuePublisher(value: "\($0)") }
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, ["1"])
+    }
+    
+    func testFlatMapLatest_constant_subject() {
+        let subject = CurrentValueSubject<Int, Never>(1)
+        let publisher = CurrentValuePublisher(subject)
+        
+        var cancellables = Set<AnyCancellable>()
+        var values = [String]()
+        
+        CurrentValuePublisher(value: ())
+            .flatMapLatest { _ in publisher.map { "\($0)" } }
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, ["1"])
+        
+        subject.value = 2
+        XCTAssertEqual(values, ["1", "2"])
+    }
+    
+    func testFlatMapLatest_subject_constants() {
+        let subject = CurrentValueSubject<Int, Never>(1)
+        let publisher = CurrentValuePublisher(subject)
+        
+        var cancellables = Set<AnyCancellable>()
+        var values = [String]()
+        
+        publisher
+            .flatMapLatest { CurrentValuePublisher(value: "\($0)") }
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, ["1"])
+        
+        subject.value = 2
+        XCTAssertEqual(values, ["1", "2"])
+        
+        subject.value = 2
+        XCTAssertEqual(values, ["1", "2", "2"])
+    }
+    
+    func testFlatMapLatest_subject_subjects() {
+        let innerSubject1 = CurrentValueSubject<Int, Never>(10)
+        let innerPublisher1 = CurrentValuePublisher(innerSubject1)
+        
+        let innerSubject2 = CurrentValueSubject<Int, Never>(20)
+        let innerPublisher2 = CurrentValuePublisher(innerSubject2)
+        
+        let outerSubject = CurrentValueSubject<CurrentValuePublisher<Int, Never>, Never>(innerPublisher1)
+        let outerPublisher = CurrentValuePublisher(outerSubject)
+        
+        var cancellables = Set<AnyCancellable>()
+        var values = [String]()
+        
+        outerPublisher
+            .flatMapLatest { innerPublisher in
+                innerPublisher.map { "\($0)" }
+            }
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, ["10"])
+        
+        innerSubject1.value = 11
+        XCTAssertEqual(values, ["10", "11"])
+        
+        outerSubject.value = innerPublisher2
+        innerSubject2.value = 21
+        innerSubject2.value = 22
+        XCTAssertEqual(values, ["10", "11", "20", "21", "22"])
+        
+        innerSubject1.value = 12
+        outerSubject.value = innerPublisher1
+        innerSubject1.value = 13
+        XCTAssertEqual(values, ["10", "11", "20", "21", "22", "12", "13"])
+    }
+    
+    func testFlatMapLatest_subject_subjectsAndConstants() {
+        let innerSubject1 = CurrentValueSubject<Int, Never>(10)
+        let innerPublisher1 = CurrentValuePublisher(innerSubject1)
+        
+        let innerPublisher2 = CurrentValuePublisher<Int, Never>(value: 20)
+        let innerPublisher3 = CurrentValuePublisher<Int, Never>(value: 30)
+        
+        let outerSubject = CurrentValueSubject<CurrentValuePublisher<Int, Never>, Never>(innerPublisher1)
+        let outerPublisher = CurrentValuePublisher(outerSubject)
+        
+        var cancellables = Set<AnyCancellable>()
+        var values = [String]()
+        
+        outerPublisher
+            .flatMapLatest { innerPublisher in
+                innerPublisher.map { "\($0)" }
+            }
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, ["10"])
+        
+        innerSubject1.value = 11
+        XCTAssertEqual(values, ["10", "11"])
+        
+        outerSubject.value = innerPublisher2
+        XCTAssertEqual(values, ["10", "11", "20"])
+        
+        innerSubject1.value = 12
+        outerSubject.value = innerPublisher1
+        XCTAssertEqual(values, ["10", "11", "20", "12"])
+        
+        outerSubject.value = innerPublisher3
+        outerSubject.value = innerPublisher3
+        XCTAssertEqual(values, ["10", "11", "20", "12", "30", "30"])
+        
+        outerSubject.value = innerPublisher1
+        XCTAssertEqual(values, ["10", "11", "20", "12", "30", "30", "12"])
+    }
+    
 //    // ============================================================================ //
 //    // MARK: - Remove Duplicates Operator
 //    // ============================================================================ //
