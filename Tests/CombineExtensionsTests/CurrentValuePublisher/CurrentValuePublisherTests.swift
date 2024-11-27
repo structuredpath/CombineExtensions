@@ -723,133 +723,133 @@ class CurrentValuePublisherTests: XCTestCase {
         XCTAssertEqual(values, [[100, 200], [101, 200], [102, 200], [102, 201]])
     }
     
-//    // ============================================================================ //
-//    // MARK: - Boolean Operators
-//    // ============================================================================ //
-//    
-//    func testBooleanAnd_constants() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [Bool]()
-//        
-//        let publisher1 = CurrentValuePublisher<Bool, Never>(value: false)
-//        let publisher2 = CurrentValuePublisher<Bool, Never>(value: true)
-//        
-//        publisher1.and(publisher2)
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [false])
-//    }
-//    
-//    func testBooleanAnd_subjectAndConstant() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [Bool]()
-//        
-//        let subject1 = CurrentValueSubject<Bool, Never>(false)
-//        let publisher1 = CurrentValuePublisher(subject1)
-//        
-//        let publisher2 = CurrentValuePublisher<Bool, Never>(value: true)
-//        
-//        publisher1.and(publisher2)
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [false])
-//        
-//        subject1.value = true
-//        XCTAssertEqual(values, [false, true])
-//        
-//        subject1.value = false
-//        XCTAssertEqual(values, [false, true, false])
-//    }
-//    
-//    func testBooleanAnd_subjects() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [Bool]()
-//        
-//        let subject1 = CurrentValueSubject<Bool, Never>(false)
-//        let publisher1 = CurrentValuePublisher(subject1)
-//        
-//        let subject2 = CurrentValueSubject<Bool, Never>(false)
-//        let publisher2 = CurrentValuePublisher(subject2)
-//        
-//        publisher1.and(publisher2)
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [false])
-//        
-//        subject1.value = true
-//        XCTAssertEqual(values, [false, false])
-//        
-//        subject2.value = true
-//        XCTAssertEqual(values, [false, false, true])
-//        
-//        subject1.value = false
-//        XCTAssertEqual(values, [false, false, true, false])
-//    }
-//    
-//    func testBooleanOr_constants() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [Bool]()
-//        
-//        let publisher1 = CurrentValuePublisher<Bool, Never>(value: false)
-//        let publisher2 = CurrentValuePublisher<Bool, Never>(value: true)
-//        
-//        publisher1.or(publisher2)
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [true])
-//    }
-//    
-//    func testBooleanOr_subjectAndConstant() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [Bool]()
-//        
-//        let subject1 = CurrentValueSubject<Bool, Never>(false)
-//        let publisher1 = CurrentValuePublisher(subject1)
-//        
-//        let publisher2 = CurrentValuePublisher<Bool, Never>(value: false)
-//        
-//        publisher1.or(publisher2)
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [false])
-//        
-//        subject1.value = true
-//        XCTAssertEqual(values, [false, true])
-//        
-//        subject1.value = false
-//        XCTAssertEqual(values, [false, true, false])
-//    }
-//    
-//    func testBooleanOr_subjects() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [Bool]()
-//        
-//        let subject1 = CurrentValueSubject<Bool, Never>(true)
-//        let publisher1 = CurrentValuePublisher(subject1)
-//        
-//        let subject2 = CurrentValueSubject<Bool, Never>(true)
-//        let publisher2 = CurrentValuePublisher(subject2)
-//        
-//        publisher1.or(publisher2)
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [true])
-//        
-//        subject1.value = false
-//        XCTAssertEqual(values, [true, true])
-//        
-//        subject2.value = false
-//        XCTAssertEqual(values, [true, true, false])
-//        
-//        subject1.value = true
-//        XCTAssertEqual(values, [true, true, false, true])
-//    }
+    // ============================================================================ //
+    // MARK: - Boolean Operators
+    // ============================================================================ //
+    
+    func testBooleanAnd_constants() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [Bool]()
+        
+        let publisher1 = CurrentValuePublisher<Bool, Never>(value: false)
+        let publisher2 = CurrentValuePublisher<Bool, Never>(value: true)
+        
+        publisher1.and(publisher2)
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [false])
+    }
+    
+    func testBooleanAnd_subjectAndConstant() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [Bool]()
+        
+        let subject1 = CurrentValueSubject<Bool, Never>(false)
+        let publisher1 = CurrentValuePublisher(subject1)
+        
+        let publisher2 = CurrentValuePublisher<Bool, Never>(value: true)
+        
+        publisher1.and(publisher2)
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [false])
+        
+        subject1.value = true
+        XCTAssertEqual(values, [false, true])
+        
+        subject1.value = false
+        XCTAssertEqual(values, [false, true, false])
+    }
+    
+    func testBooleanAnd_subjects() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [Bool]()
+        
+        let subject1 = CurrentValueSubject<Bool, Never>(false)
+        let publisher1 = CurrentValuePublisher(subject1)
+        
+        let subject2 = CurrentValueSubject<Bool, Never>(false)
+        let publisher2 = CurrentValuePublisher(subject2)
+        
+        publisher1.and(publisher2)
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [false])
+        
+        subject1.value = true
+        XCTAssertEqual(values, [false, false])
+        
+        subject2.value = true
+        XCTAssertEqual(values, [false, false, true])
+        
+        subject1.value = false
+        XCTAssertEqual(values, [false, false, true, false])
+    }
+    
+    func testBooleanOr_constants() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [Bool]()
+        
+        let publisher1 = CurrentValuePublisher<Bool, Never>(value: false)
+        let publisher2 = CurrentValuePublisher<Bool, Never>(value: true)
+        
+        publisher1.or(publisher2)
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [true])
+    }
+    
+    func testBooleanOr_subjectAndConstant() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [Bool]()
+        
+        let subject1 = CurrentValueSubject<Bool, Never>(false)
+        let publisher1 = CurrentValuePublisher(subject1)
+        
+        let publisher2 = CurrentValuePublisher<Bool, Never>(value: false)
+        
+        publisher1.or(publisher2)
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [false])
+        
+        subject1.value = true
+        XCTAssertEqual(values, [false, true])
+        
+        subject1.value = false
+        XCTAssertEqual(values, [false, true, false])
+    }
+    
+    func testBooleanOr_subjects() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [Bool]()
+        
+        let subject1 = CurrentValueSubject<Bool, Never>(true)
+        let publisher1 = CurrentValuePublisher(subject1)
+        
+        let subject2 = CurrentValueSubject<Bool, Never>(true)
+        let publisher2 = CurrentValuePublisher(subject2)
+        
+        publisher1.or(publisher2)
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [true])
+        
+        subject1.value = false
+        XCTAssertEqual(values, [true, true])
+        
+        subject2.value = false
+        XCTAssertEqual(values, [true, true, false])
+        
+        subject1.value = true
+        XCTAssertEqual(values, [true, true, false, true])
+    }
     
     // ============================================================================ //
     // MARK: - Deinitialization
