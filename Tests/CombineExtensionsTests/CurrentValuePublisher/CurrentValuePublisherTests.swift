@@ -679,50 +679,50 @@ class CurrentValuePublisherTests: XCTestCase {
         XCTAssertEqual(values, [1, 4, 6, 7])
     }
     
-//    // ============================================================================ //
-//    // MARK: - CombineLatest Operator
-//    // ============================================================================ //
-//    
-//    func testCombineLatest_constants() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [[Int]]()
-//        
-//        let publisher1 = CurrentValuePublisher<Int, Never>(value: 100)
-//        let publisher2 = CurrentValuePublisher<Int, Never>(value: 200)
-//        
-//        publisher1.combineLatest(publisher2)
-//            .sink { values.append([$0, $1]) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [[100, 200]])
-//    }
-//    
-//    func testCombineLatest_subjects() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [[Int]]()
-//        
-//        let subject1 = CurrentValueSubject<Int, Never>(100)
-//        let publisher1 = CurrentValuePublisher(subject1)
-//        
-//        let subject2 = CurrentValueSubject<Int, Never>(200)
-//        let publisher2 = CurrentValuePublisher(subject2)
-//        
-//        publisher1.combineLatest(publisher2)
-//            .sink { values.append([$0, $1]) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, [[100, 200]])
-//        
-//        subject1.send(101)
-//        XCTAssertEqual(values, [[100, 200], [101, 200]])
-//        
-//        subject1.send(102)
-//        XCTAssertEqual(values, [[100, 200], [101, 200], [102, 200]])
-//        
-//        subject2.send(201)
-//        XCTAssertEqual(values, [[100, 200], [101, 200], [102, 200], [102, 201]])
-//    }
-//    
+    // ============================================================================ //
+    // MARK: - CombineLatest Operator
+    // ============================================================================ //
+    
+    func testCombineLatest_constants() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [[Int]]()
+        
+        let publisher1 = CurrentValuePublisher<Int, Never>(value: 100)
+        let publisher2 = CurrentValuePublisher<Int, Never>(value: 200)
+        
+        publisher1.combineLatest(publisher2)
+            .sink { values.append([$0, $1]) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [[100, 200]])
+    }
+    
+    func testCombineLatest_subjects() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [[Int]]()
+        
+        let subject1 = CurrentValueSubject<Int, Never>(100)
+        let publisher1 = CurrentValuePublisher(subject1)
+        
+        let subject2 = CurrentValueSubject<Int, Never>(200)
+        let publisher2 = CurrentValuePublisher(subject2)
+        
+        publisher1.combineLatest(publisher2)
+            .sink { values.append([$0, $1]) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, [[100, 200]])
+        
+        subject1.send(101)
+        XCTAssertEqual(values, [[100, 200], [101, 200]])
+        
+        subject1.send(102)
+        XCTAssertEqual(values, [[100, 200], [101, 200], [102, 200]])
+        
+        subject2.send(201)
+        XCTAssertEqual(values, [[100, 200], [101, 200], [102, 200], [102, 201]])
+    }
+    
 //    // ============================================================================ //
 //    // MARK: - Boolean Operators
 //    // ============================================================================ //
