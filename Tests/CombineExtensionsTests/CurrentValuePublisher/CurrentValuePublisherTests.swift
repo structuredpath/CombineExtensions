@@ -269,93 +269,91 @@ class CurrentValuePublisherTests: XCTestCase {
         XCTAssertEqual(subject.value, "third")
     }
     
-//    // ============================================================================ //
-//    // MARK: - Published
-//    // ============================================================================ //
-//    
-//    func testPublishedToCurrentValuePublisher_accessingValue() {
-//        let object = MutableTestObject(initialValue: "initial")
-//        let publisher = object.$value.toCurrentValuePublisher()
-//        
-//        XCTAssertEqual(publisher.value, "initial")
-//        
-//        object.value = "second"
-//        XCTAssertEqual(publisher.value, "second")
-//        
-//        object.value = "third"
-//        XCTAssertEqual(publisher.value, "third")
-//    }
-//    
-//    func testPublishedToCurrentValuePublisher_receivingValues() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [String]()
-//        
-//        let object = MutableTestObject(initialValue: "initial")
-//        
-//        object.$value
-//            .toCurrentValuePublisher()
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, ["initial"])
-//        
-//        object.value = "second"
-//        XCTAssertEqual(values, ["initial", "second"])
-//        
-//        object.value = "third"
-//        XCTAssertEqual(values, ["initial", "second", "third"])
-//    }
-//    
-//    func testPublishedToCurrentValuePublisher_cancellation() {
-//        var cancellables = Set<AnyCancellable>()
-//        var values = [String]()
-//        
-//        let object = MutableTestObject(initialValue: "initial")
-//        
-//        object.$value
-//            .toCurrentValuePublisher()
-//            .sink { values.append($0) }
-//            .store(in: &cancellables)
-//        
-//        XCTAssertEqual(values, ["initial"])
-//        
-//        object.value = "second"
-//        XCTAssertEqual(values, ["initial", "second"])
-//        
-//        cancellables.forEach { $0.cancel() }
-//        XCTAssertEqual(values, ["initial", "second"])
-//        
-//        object.value = "third"
-//        XCTAssertEqual(values, ["initial", "second"])
-//    }
-//    
-//    func testCurrentValuePublisherToPublished_accessingValue() {
-//        let subject = CurrentValueSubject<String, Never>("initial")
-//        let publisher = CurrentValuePublisher<String, Never>(subject)
-//        let object = ImmutableTestObject(publisher: publisher)
-//        
-//        XCTAssertEqual(object.value, "initial")
-//        
-//        subject.value = "second"
-//        XCTAssertEqual(object.value, "second")
-//        
-//        subject.value = "third"
-//        XCTAssertEqual(object.value, "third")
-//    }
-//    
-//    func testCurrentValuePublisherToPublished_completionFinished() {
-//        let subject = CurrentValueSubject<String, Never>("initial")
-//        let publisher = CurrentValuePublisher<String, Never>(subject)
-//        let object = ImmutableTestObject(publisher: publisher)
-//        
-//        XCTAssertEqual(object.value, "initial")
-//        
-//        subject.send("second")
-//        XCTAssertEqual(object.value, "second")
-//        
-//        subject.send(completion: .finished)
-//        XCTAssertEqual(object.value, "second")
-//    }
+    // ============================================================================ //
+    // MARK: - Published
+    // ============================================================================ //
+    
+    func testPublishedToCurrentValuePublisher_accessingValue() {
+        let object = MutableObservableObject(initialValue: "initial")
+        let publisher = CurrentValuePublisher(object.$value)
+        
+        XCTAssertEqual(publisher.value, "initial")
+        
+        object.value = "second"
+        XCTAssertEqual(publisher.value, "second")
+        
+        object.value = "third"
+        XCTAssertEqual(publisher.value, "third")
+    }
+    
+    func testPublishedToCurrentValuePublisher_receivingValues() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [String]()
+        
+        let object = MutableObservableObject(initialValue: "initial")
+        
+        CurrentValuePublisher(object.$value)
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, ["initial"])
+        
+        object.value = "second"
+        XCTAssertEqual(values, ["initial", "second"])
+        
+        object.value = "third"
+        XCTAssertEqual(values, ["initial", "second", "third"])
+    }
+    
+    func testPublishedToCurrentValuePublisher_cancellation() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [String]()
+        
+        let object = MutableObservableObject(initialValue: "initial")
+        
+        CurrentValuePublisher(object.$value)
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, ["initial"])
+        
+        object.value = "second"
+        XCTAssertEqual(values, ["initial", "second"])
+        
+        cancellables.forEach { $0.cancel() }
+        XCTAssertEqual(values, ["initial", "second"])
+        
+        object.value = "third"
+        XCTAssertEqual(values, ["initial", "second"])
+    }
+    
+    func testCurrentValuePublisherToPublished_accessingValue() {
+        let subject = CurrentValueSubject<String, Never>("initial")
+        let publisher = CurrentValuePublisher<String, Never>(subject)
+        let object = ImmutableObservableObject(publisher: publisher)
+        
+        XCTAssertEqual(object.value, "initial")
+        
+        subject.value = "second"
+        XCTAssertEqual(object.value, "second")
+        
+        subject.value = "third"
+        XCTAssertEqual(object.value, "third")
+    }
+    
+    func testCurrentValuePublisherToPublished_completionFinished() {
+        let subject = CurrentValueSubject<String, Never>("initial")
+        let publisher = CurrentValuePublisher<String, Never>(subject)
+        let object = ImmutableObservableObject(publisher: publisher)
+        
+        XCTAssertEqual(object.value, "initial")
+        
+        subject.send("second")
+        XCTAssertEqual(object.value, "second")
+        
+        subject.send(completion: .finished)
+        XCTAssertEqual(object.value, "second")
+    }
     
     // ============================================================================ //
     // MARK: - Map Operator
@@ -946,7 +944,7 @@ class CurrentValuePublisherTests: XCTestCase {
 
 fileprivate struct TestError: Error, Equatable {}
 
-fileprivate class MutableTestObject {
+fileprivate class MutableObservableObject: ObservableObject {
     
     fileprivate init(initialValue: String) {
         self.value = initialValue
@@ -957,13 +955,13 @@ fileprivate class MutableTestObject {
     
 }
 
-//fileprivate class ImmutableTestObject {
-//    
-//    fileprivate init(publisher: CurrentValuePublisher<String, Never>) {
-//        self._value = Published(publisher)
-//    }
-//    
-//    @Published
-//    fileprivate private(set) var value: String
-//    
-//}
+fileprivate class ImmutableObservableObject {
+    
+    fileprivate init(publisher: CurrentValuePublisher<String, Never>) {
+        self._value = Published(publisher)
+    }
+    
+    @Published
+    fileprivate private(set) var value: String
+    
+}
