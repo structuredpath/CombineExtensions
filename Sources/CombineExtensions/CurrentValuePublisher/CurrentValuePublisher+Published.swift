@@ -2,21 +2,23 @@ import Combine
 
 extension CurrentValuePublisher {
     
-    /// Creates a `CurrentValuePublisher` from a `@Published` property’s publisher.
+    /// Initializes a `CurrentValuePublisher` from a `@Published` property’s publisher.
     ///
-    /// The resulting publisher emits the initial value of the `@Published` property, followed
-    /// by all subsequent values.
+    /// Captures the current value of the `@Published` property and emits all future updates.
+    /// Useful when bridging a `@Published` property to APIs expecting a `CurrentValuePublisher`.
     ///
-    /// - Parameter publisher: A publisher associated with a `@Published` property.
+    /// - Parameter publisher: The publisher exposed by a `@Published` property via its projected
+    ///   value, typically accessed via the `$` prefix.
     public convenience init(
         _ publisher: Published<Output>.Publisher
     ) where Failure == Never {
         var initialValue: Output!
         
-        // `Published.Publisher`, similarly to `CurrentValueSubject` and ultimately also
-        // `CurrentValuePublisher`, sends its current value to a subscriber upon subscription.
-        // We leverage this behavior for obtaining the current value with a short-lived
-        // subscription and skip it in the upstream publisher.
+        // Ideally, we would access the current value of a `@Published` property directly, but
+        // there is no API to achieve that. Instead, we rely on the fact that `Published.Publisher`
+        // emits its current value upon subscription—similar to `CurrentValueSubject`
+        // and `CurrentValuePublisher`. We use a short-lived subscription to capture that value,
+        // then drop it from the upstream.
         _ = publisher
             .first()
             .sink { initialValue = $0 }
@@ -31,28 +33,37 @@ extension CurrentValuePublisher {
 
 extension Published {
     
-    /// Creates a `@Published` property wrapper that reflects the values of a `CurrentValuePublisher`.
+    /// Initializes a `@Published` property wrapper backed by a `CurrentValuePublisher`.
     ///
-    /// This is typically used to bind values from a `CurrentValuePublisher` to a `@Published`
-    /// property in the initializer of an observable object. The property wrapper has to be
-    /// assigned via `self._property = Published(publisher)`.
+    /// Useful for binding a `CurrentValuePublisher` to a `@Published` property inside
+    /// an observable object’s initializer. The wrapper must be assigned directly to the backing
+    /// storage, e.g. `self._property = Published(publisher)`.
     ///
-    /// - Parameter publisher: A `CurrentValuePublisher` whose values the property wrapper
-    ///   will reflect.
-    public init(_ publisher: CurrentValuePublisher<Publisher.Output, Publisher.Failure>) {
+    /// While it is technically possible to mutate such a `@Published` property, doing so is
+    /// discouraged—any assigned value will be overwritten by the next emission from the upstream
+    /// publisher. To prevent accidental writes, the property should typically be declared with
+    /// `private(set)` or limited through access control.
+    ///
+    /// - Parameter publisher: The `CurrentValuePublisher` whose values will drive the `@Published`
+    ///   property.
+    public init(_ publisher: CurrentValuePublisher<Value, Never>) {
         self.init(initialValue: publisher.value)
-        publisher.assign(to: &projectedValue)
+        
+        publisher
+            .dropFirst()
+            .assign(to: &self.projectedValue)
     }
     
-    /// Creates a `@Published` property wrapper that reflects the values of a `CurrentValueSubject`.
-    ///
-    /// This is typically used to bind values from a `CurrentValueSubject` to a `@Published`
-    /// property in the initializer of an observable object. The property wrapper has to be
-    /// assigned via `self._property = Published(subject)`.
-    ///
-    /// - Parameter publisher: A `CurrentValueSubject` whose values the property wrapper
-    ///   will reflect.
-    public init(_ subject: CurrentValueSubject<Publisher.Output, Publisher.Failure>) {
+}
+
+extension Published {
+    
+    @available(*, deprecated, message: """
+    No longer supported. Explicitly convert the subject to a CurrentValuePublisher instead. \
+    This initializer creates a one-way binding only—updates to the property do not propagate \ 
+    back to the subject, which can lead to confusion.
+    """)
+    public init(_ subject: CurrentValueSubject<Value, Never>) {
         self.init(CurrentValuePublisher(subject))
     }
     

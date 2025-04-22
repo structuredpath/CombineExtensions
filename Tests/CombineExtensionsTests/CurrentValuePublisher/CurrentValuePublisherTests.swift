@@ -270,11 +270,11 @@ class CurrentValuePublisherTests: XCTestCase {
     }
     
     // ============================================================================ //
-    // MARK: - Published
+    // MARK: - @Published → CurrentValuePublisher
     // ============================================================================ //
     
     func testPublishedToCurrentValuePublisher_accessingValue() {
-        let object = MutableObservableObject(initialValue: "initial")
+        let object = OwnedObservableObject(initialValue: "initial")
         let publisher = CurrentValuePublisher(object.$value)
         
         XCTAssertEqual(publisher.value, "initial")
@@ -290,7 +290,7 @@ class CurrentValuePublisherTests: XCTestCase {
         var cancellables = Set<AnyCancellable>()
         var values = [String]()
         
-        let object = MutableObservableObject(initialValue: "initial")
+        let object = OwnedObservableObject(initialValue: "initial")
         
         CurrentValuePublisher(object.$value)
             .sink { values.append($0) }
@@ -309,7 +309,7 @@ class CurrentValuePublisherTests: XCTestCase {
         var cancellables = Set<AnyCancellable>()
         var values = [String]()
         
-        let object = MutableObservableObject(initialValue: "initial")
+        let object = OwnedObservableObject(initialValue: "initial")
         
         CurrentValuePublisher(object.$value)
             .sink { values.append($0) }
@@ -321,16 +321,19 @@ class CurrentValuePublisherTests: XCTestCase {
         XCTAssertEqual(values, ["initial", "second"])
         
         cancellables.forEach { $0.cancel() }
-        XCTAssertEqual(values, ["initial", "second"])
         
         object.value = "third"
         XCTAssertEqual(values, ["initial", "second"])
     }
     
+    // ============================================================================ //
+    // MARK: - CurrentValuePublisher → @Published
+    // ============================================================================ //
+    
     func testCurrentValuePublisherToPublished_accessingValue() {
         let subject = CurrentValueSubject<String, Never>("initial")
         let publisher = CurrentValuePublisher<String, Never>(subject)
-        let object = ImmutableObservableObject(publisher: publisher)
+        let object = BackedObservableObject(publisher: publisher)
         
         XCTAssertEqual(object.value, "initial")
         
@@ -341,18 +344,76 @@ class CurrentValuePublisherTests: XCTestCase {
         XCTAssertEqual(object.value, "third")
     }
     
-    func testCurrentValuePublisherToPublished_completionFinished() {
+    func testCurrentValuePublisherToPublished_receivingValues() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [String]()
+        
         let subject = CurrentValueSubject<String, Never>("initial")
         let publisher = CurrentValuePublisher<String, Never>(subject)
-        let object = ImmutableObservableObject(publisher: publisher)
+        let object = BackedObservableObject(publisher: publisher)
+        
+        object.$value
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, ["initial"])
+        
+        subject.value = "second"
+        XCTAssertEqual(values, ["initial", "second"])
+        
+        subject.value = "third"
+        XCTAssertEqual(values, ["initial", "second", "third"])
+    }
+    
+    func testCurrentValuePublisherToPublished_localOverride() {
+        let subject = CurrentValueSubject<String, Never>("initial")
+        let publisher = CurrentValuePublisher<String, Never>(subject)
+        let object = BackedObservableObject(publisher: publisher)
         
         XCTAssertEqual(object.value, "initial")
         
-        subject.send("second")
+        object.value = "override"
+        XCTAssertEqual(object.value, "override")
+        
+        subject.value = "second"
+        XCTAssertEqual(object.value, "second")
+    }
+    
+    func testCurrentValuePublisherToPublished_completionFinished() {
+        let subject = CurrentValueSubject<String, Never>("initial")
+        let publisher = CurrentValuePublisher<String, Never>(subject)
+        let object = BackedObservableObject(publisher: publisher)
+        
+        XCTAssertEqual(object.value, "initial")
+        
+        subject.value = "second"
         XCTAssertEqual(object.value, "second")
         
         subject.send(completion: .finished)
         XCTAssertEqual(object.value, "second")
+    }
+    
+    func testCurrentValuePublisherToPublished_cancellation() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [String]()
+        
+        let subject = CurrentValueSubject<String, Never>("initial")
+        let publisher = CurrentValuePublisher<String, Never>(subject)
+        
+        let object = BackedObservableObject(publisher: publisher)
+        
+        object.$value
+            .sink { values.append($0) }
+            .store(in: &cancellables)
+        
+        XCTAssertEqual(values, ["initial"])
+        
+        subject.value = "second"
+        XCTAssertEqual(values, ["initial", "second"])
+        
+        cancellables.forEach { $0.cancel() }
+        subject.value = "third"
+        XCTAssertEqual(values, ["initial", "second"])
     }
     
     // ============================================================================ //
@@ -944,7 +1005,7 @@ class CurrentValuePublisherTests: XCTestCase {
 
 fileprivate struct TestError: Error, Equatable {}
 
-fileprivate class MutableObservableObject: ObservableObject {
+fileprivate class OwnedObservableObject: ObservableObject {
     
     fileprivate init(initialValue: String) {
         self.value = initialValue
@@ -955,13 +1016,13 @@ fileprivate class MutableObservableObject: ObservableObject {
     
 }
 
-fileprivate class ImmutableObservableObject {
+fileprivate class BackedObservableObject {
     
     fileprivate init(publisher: CurrentValuePublisher<String, Never>) {
         self._value = Published(publisher)
     }
     
     @Published
-    fileprivate private(set) var value: String
+    fileprivate var value: String
     
 }
