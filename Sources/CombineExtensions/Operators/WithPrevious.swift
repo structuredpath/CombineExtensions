@@ -1,7 +1,5 @@
 import Combine
 
-// Inspired by https://stackoverflow.com/a/67133582/670119
-
 extension Publisher {
     
     /// Transforms elements from the upstream publisher into a tuple containing the current and
@@ -19,9 +17,19 @@ extension Publisher {
     ///
     /// - Returns: A publisher that emits a tuple of the previous and current elements from the
     ///   upstream publisher.
+    ///
+    /// - Note: Until version 0.3.0 of the library, this was implemented using `.scan` (see
+    ///   [this post](https://stackoverflow.com/a/67133582/670119)). However, that approach
+    ///   strongly retained previous values and could keep them in memory longer than expected
+    ///   when `Output` was a reference type. This version avoids that by using a local variable
+    ///   inside `map`, which does not retain previous values beyond each emission.
     public func withPrevious() -> AnyPublisher<(previous: Output?, current: Output), Failure> {
-        self.scan(Optional<(Output?, Output)>.none) { ($0?.1, $1) }
-            .compactMap { $0 }
+        var previous: Output?
+        return self
+            .map { current in
+                defer { previous = current }
+                return (previous: previous, current: current)
+            }
             .eraseToAnyPublisher()
     }
     
@@ -42,10 +50,21 @@ extension Publisher {
     ///   emission.
     /// - Returns: A publisher that emits a tuple of the previous and current elements from the
     ///   upstream publisher.
+    ///
+    /// - Note: Until version 0.3.0 of the library, this was implemented using `.scan` (see
+    ///   [this post](https://stackoverflow.com/a/67133582/670119)). However, that approach
+    ///   strongly retained previous values and could keep them in memory longer than expected
+    ///   when `Output` was a reference type. This version avoids that by using a local variable
+    ///   inside `map`, which does not retain previous values beyond each emission.
     public func withPrevious(
         initialValue: Output
     ) -> AnyPublisher<(previous: Output, current: Output), Failure> {
-        self.scan((initialValue, initialValue)) { ($0.1, $1) }
+        var previous = initialValue
+        return self
+            .map { current in
+                defer { previous = current }
+                return (previous: previous, current: current)
+            }
             .eraseToAnyPublisher()
     }
     

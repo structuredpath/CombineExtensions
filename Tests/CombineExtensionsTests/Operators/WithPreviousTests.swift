@@ -13,7 +13,9 @@ class WithPreviousTests: XCTestCase {
         
         subject
             .withPrevious()
-            .sink { _ in completed = true } receiveValue: { pair in
+            .sink { _ in
+                completed = true
+            } receiveValue: { pair in
                 results.append([pair.previous, pair.current])
             }
             .store(in: &cancellables)
@@ -41,7 +43,9 @@ class WithPreviousTests: XCTestCase {
         
         subject
             .withPrevious(initialValue: 0)
-            .sink { _ in completed = true } receiveValue: { pair in
+            .sink { _ in
+                completed = true
+            } receiveValue: { pair in
                 results.append([pair.previous, pair.current])
             }
             .store(in: &cancellables)
@@ -96,4 +100,40 @@ class WithPreviousTests: XCTestCase {
         XCTAssertTrue(completed)
     }
     
+    func testWithPrevious_doesNotRetainObjects() {
+        var cancellables = Set<AnyCancellable>()
+        var deallocatedIDs = Set<Int>()
+        
+        let subject = PassthroughSubject<TestObject, Never>()
+        
+        subject
+            .withPrevious()
+            .sink { _ in }
+            .store(in: &cancellables)
+        
+        for id in 0...2 {
+            let object = TestObject(id: id) { deallocatedIDs.insert(id) }
+            subject.send(object)
+        }
+        
+        XCTAssertEqual(deallocatedIDs, [0, 1])
+        
+        subject.send(completion: .finished)
+        XCTAssertEqual(deallocatedIDs, [0, 1, 2])
+    }
+    
+}
+
+private final class TestObject {
+    let id: Int
+    let onDeinit: () -> Void
+    
+    init(id: Int, onDeinit: @escaping () -> Void) {
+        self.id = id
+        self.onDeinit = onDeinit
+    }
+    
+    deinit {
+        self.onDeinit()
+    }
 }
