@@ -919,86 +919,86 @@ class CurrentValuePublisherTests: XCTestCase {
     func testDeinit_clearingVariableWithCancelledSubscription() {
         let subject = CurrentValueSubject<Int, Never>(1)
         var publisher: CurrentValuePublisher? = CurrentValuePublisher(subject)
-        weak var weakPublisher = publisher
-        XCTAssertNotNil(weakPublisher)
-        
+        let weakPublisher = WeakRef(publisher)
+        XCTAssertNotNil(weakPublisher.value)
+
         let cancellable = publisher?.sink(receiveValue: { _ in })
-        XCTAssertNotNil(weakPublisher)
-        
+        XCTAssertNotNil(weakPublisher.value)
+
         cancellable?.cancel()
-        XCTAssertNotNil(weakPublisher)
-        
+        XCTAssertNotNil(weakPublisher.value)
+
         publisher = nil
-        XCTAssertNil(weakPublisher)
+        XCTAssertNil(weakPublisher.value)
     }
-    
+
     func testDeinit_cancellingLastSubscription() {
         let subject = CurrentValueSubject<Int, Never>(1)
         var publisher: CurrentValuePublisher? = CurrentValuePublisher(subject)
-        weak var weakPublisher = publisher
-        XCTAssertNotNil(weakPublisher)
-        
+        let weakPublisher = WeakRef(publisher)
+        XCTAssertNotNil(weakPublisher.value)
+
         let cancellable1 = publisher?.sink(receiveValue: { _ in })
         let cancellable2 = publisher?.sink(receiveValue: { _ in })
-        XCTAssertNotNil(weakPublisher)
-        
+        XCTAssertNotNil(weakPublisher.value)
+
         publisher = nil
-        XCTAssertNotNil(weakPublisher)
-        
+        XCTAssertNotNil(weakPublisher.value)
+
         cancellable2?.cancel()
-        XCTAssertNotNil(weakPublisher)
-        
+        XCTAssertNotNil(weakPublisher.value)
+
         cancellable1?.cancel()
-        XCTAssertNil(weakPublisher)
+        XCTAssertNil(weakPublisher.value)
     }
-    
+
     func testDeinit_clearingVariablesForChainedMapOperator() {
         let subject = CurrentValueSubject<Int, Never>(1)
-        
+
         var publisher1: CurrentValuePublisher? = CurrentValuePublisher(subject)
-        weak var weakPublisher1 = publisher1
-        
+        let weakPublisher1 = WeakRef(publisher1)
+
         var publisher2: CurrentValuePublisher? = publisher1?.map(\.self)
-        weak var weakPublisher2 = publisher2
-        
+        let weakPublisher2 = WeakRef(publisher2)
+
         var publisher3: CurrentValuePublisher? = publisher2?.map(\.self)
-        weak var weakPublisher3 = publisher3
-        
+        let weakPublisher3 = WeakRef(publisher3)
+
         publisher1 = nil
-        XCTAssertNotNil(weakPublisher1)
-        XCTAssertNotNil(weakPublisher2)
-        XCTAssertNotNil(weakPublisher3)
-        
+        XCTAssertNotNil(weakPublisher1.value)
+        XCTAssertNotNil(weakPublisher2.value)
+        XCTAssertNotNil(weakPublisher3.value)
+
         publisher3 = nil
-        XCTAssertNotNil(weakPublisher1)
-        XCTAssertNotNil(weakPublisher2)
-        XCTAssertNil(weakPublisher3)
-        
+        XCTAssertNotNil(weakPublisher1.value)
+        XCTAssertNotNil(weakPublisher2.value)
+        XCTAssertNil(weakPublisher3.value)
+
         publisher2 = nil
-        XCTAssertNil(weakPublisher1)
-        XCTAssertNil(weakPublisher2)
-        XCTAssertNil(weakPublisher3)
+        XCTAssertNil(weakPublisher1.value)
+        XCTAssertNil(weakPublisher2.value)
+        XCTAssertNil(weakPublisher3.value)
     }
-    
+
     func testDeinit_cancellingSubscriptionOnMapOperator() {
         let subject = CurrentValueSubject<Int, Never>(1)
-        
+
         var publisher1: CurrentValuePublisher? = CurrentValuePublisher(subject)
-        weak var weakPublisher1 = publisher1
-        
+        let weakPublisher1 = WeakRef(publisher1)
+
         var publisher2: CurrentValuePublisher? = publisher1?.map(\.self)
-        weak var weakPublisher2 = publisher2
-        
+        let weakPublisher2 = WeakRef(publisher2)
+
         let cancellable = publisher2?.sink(receiveValue: { _ in })
-        
+
         publisher1 = nil
         publisher2 = nil
-        XCTAssertNotNil(weakPublisher1)
-        XCTAssertNotNil(weakPublisher2)
-        
+        XCTAssertNotNil(weakPublisher1.value)
+        XCTAssertNotNil(weakPublisher2.value)
+
         cancellable?.cancel()
-        XCTAssertNil(weakPublisher1)
-        XCTAssertNil(weakPublisher2)
+        XCTAssertNil(weakPublisher1.value)
+        XCTAssertNil(weakPublisher2.value)
     }
     
 }
@@ -1025,4 +1025,11 @@ fileprivate class BackedObservableObject {
     @Published
     fileprivate var value: String
     
+}
+
+private struct WeakRef<T: AnyObject> {
+    weak var value: T?
+    init(_ value: T?) {
+        self.value = value
+    }
 }
