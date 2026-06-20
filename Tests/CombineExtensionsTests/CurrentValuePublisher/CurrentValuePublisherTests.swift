@@ -785,6 +785,76 @@ class CurrentValuePublisherTests: XCTestCase {
     }
     
     // ============================================================================ //
+    // MARK: - Static CombineLatest
+    // ============================================================================ //
+
+    func testStaticCombineLatest2() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [[Int]]()
+
+        let subject1 = CurrentValueSubject<Int, Never>(1)
+        let publisher1 = CurrentValuePublisher(subject1)
+        let publisher2 = CurrentValuePublisher<Int, Never>(value: 2)
+
+        CurrentValuePublisher.combineLatest(publisher1, publisher2)
+            .sink { values.append([$0, $1]) }
+            .store(in: &cancellables)
+
+        XCTAssertEqual(values, [[1, 2]])
+
+        subject1.send(10)
+        XCTAssertEqual(values, [[1, 2], [10, 2]])
+    }
+
+    func testStaticCombineLatest3() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [[Int]]()
+
+        let publisher1 = CurrentValuePublisher<Int, Never>(value: 1)
+
+        let subject2 = CurrentValueSubject<Int, Never>(2)
+        let publisher2 = CurrentValuePublisher(subject2)
+
+        let publisher3 = CurrentValuePublisher<Int, Never>(value: 3)
+
+        CurrentValuePublisher.combineLatest(publisher1, publisher2, publisher3)
+            .sink { values.append([$0, $1, $2]) }
+            .store(in: &cancellables)
+
+        XCTAssertEqual(values, [[1, 2, 3]])
+
+        subject2.send(20)
+        XCTAssertEqual(values, [[1, 2, 3], [1, 20, 3]])
+    }
+
+    func testStaticCombineLatest4() {
+        var cancellables = Set<AnyCancellable>()
+        var values = [[Int]]()
+
+        let subject1 = CurrentValueSubject<Int, Never>(1)
+        let publisher1 = CurrentValuePublisher(subject1)
+
+        let publisher2 = CurrentValuePublisher<Int, Never>(value: 2)
+
+        let subject3 = CurrentValueSubject<Int, Never>(3)
+        let publisher3 = CurrentValuePublisher(subject3)
+
+        let publisher4 = CurrentValuePublisher<Int, Never>(value: 4)
+
+        CurrentValuePublisher.combineLatest(publisher1, publisher2, publisher3, publisher4)
+            .sink { values.append([$0, $1, $2, $3]) }
+            .store(in: &cancellables)
+
+        XCTAssertEqual(values, [[1, 2, 3, 4]])
+
+        subject1.send(10)
+        XCTAssertEqual(values, [[1, 2, 3, 4], [10, 2, 3, 4]])
+
+        subject3.send(30)
+        XCTAssertEqual(values, [[1, 2, 3, 4], [10, 2, 3, 4], [10, 2, 30, 4]])
+    }
+
+    // ============================================================================ //
     // MARK: - Boolean Operators
     // ============================================================================ //
     
