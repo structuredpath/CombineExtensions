@@ -19,11 +19,11 @@ import Combine
 /// subscriptions are released.
 ///
 /// ### Development Notes:
-/// - Inspired by the `Property` and `MutableProperty` types from ReactiveSwift, particularly their
-///   distinction between constant and composed behaviors, as described at https://bit.ly/3c6iWfq.
-/// - Although the implementation differs significantly, this gist served as an initial reference:
-///   https://gist.github.com/sharplet/14703e2988e38d870198064989263f75.
-/// - The storage evolved from a simple value, to a subject, and finally to a `Storage` abstraction
+/// - Inspired by [ReactiveSwift's `Property` and `MutableProperty` types](https://spth.eu/reactiveswift-property)
+///   and their distinction between constant and composed behaviors.
+/// - [This gist](https://spth.eu/cvp-sharplet) served as an initial reference, though
+///   the implementation has since diverged significantly.
+/// - Storage evolved from a simple value, to a subject, and finally to a `Storage` abstraction
 ///   with `constant` and `subject` cases.
 public final class CurrentValuePublisher<Output, Failure: Error>: Publisher {
     
